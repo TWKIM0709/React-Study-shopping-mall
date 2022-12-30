@@ -1,0 +1,12 @@
+.hello {
+    width: 100px;
+    height: 30px;
+    background-color: aqua;
+}
+.titleImage {
+    max-height: 300px;
+    max-width: 98%;
+}
+.cheeseImage img {
+    width: 100%;
+}

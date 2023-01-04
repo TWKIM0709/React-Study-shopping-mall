@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Button, Col, Container, Row, Tab, Tabs } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
+import { useDispatch } from 'react-redux';
+import { addCart } from "../store";
 
 let Box = styled.div`
     padding : 20px;
@@ -18,6 +20,7 @@ let BtnChild = styled(BtnStyle)`
 
 function Detail({cheese}){
 
+    let dispatch = useDispatch();
     let {id} = useParams();
     let navigate = useNavigate();
     let findCheese = cheese.find((item)=> item.id == id);
@@ -53,7 +56,11 @@ function Detail({cheese}){
                                 {/* <h4>{findCheese.title}</h4> */}
                                 <p>{findCheese.content}</p>
                                 <p>{findCheese.price}</p>
-                                <BtnStyle className="btn btn-primary" onClick={()=>navigate('/cart')}>주문하기</BtnStyle>
+                                <BtnStyle className="btn btn-primary" onClick={()=>navigate('/cart/'+findCheese.id)}>주문하기</BtnStyle>
+                                <BtnStyle className="btn btn-primary" onClick={()=>{
+                                    dispatch(addCart(findCheese));
+                                    navigate('/cart')
+                                    }}>장바구니추가</BtnStyle>
                                 <BtnChild bg="orange" className="btn btn-danger" onClick={()=>navigate(-1)}>뒤로가기</BtnChild>
                                 <BtnStyle className="btn btn-dark" onClick={()=>navigate('/')}>목록보기</BtnStyle>
                             </Col>

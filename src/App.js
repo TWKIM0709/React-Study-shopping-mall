@@ -3,28 +3,55 @@ import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import { Col, Row } from 'react-bootstrap';
-import React, { useState } from 'react';
+import React, { lazy, Suspense, useState } from 'react';
 import { Link, Outlet, Route, Routes, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useQuery } from 'react-query';
 
-import Detail from './Components/Detail';
-import Cart from './Components/Cart';
 import Event from './Components/Event';
 import './App.css';
 import './css/main.css';
 import data from './data';
+import { useEffect } from 'react';
 
 //Context API 실습
 let context = React.createContext();
 
-
+//import Detail from './Components/Detail';
+const Detail = lazy(()=>import('./Components/Detail'));
+// import Cart from './Components/Cart';
+const Cart = lazy(()=>import('./Components/Cart'));
 
 function App() {
+
+
+  useEffect(()=>{
+    // LocalStorage
+    let obj = {name:'안녕'}
+    localStorage.setItem('data',JSON.stringify(obj))
+    let outObj = localStorage.getItem('data')
+    console.log(outObj);
+    outObj = JSON.parse(outObj);
+    console.log(obj);
+  },[])
+
+  //
 
   let [cheese,setCheese]= useState(data);
 
   //Context API 실습용 데이터
   let [stock] = useState([7,13,20]);
+
+  let res =   useQuery('values',()=>{
+    axios.get('https://raw.githubusercontent.com/TWKIM0709/DataBaseGit/main/data.json')
+    .then((res)=>{
+      console.log('res')
+      console.log(res)
+      console.log('res.data')
+      console.log(res.data);
+      return res.data;
+    })
+});
 
   return (
     <div className="App">
@@ -35,21 +62,26 @@ function App() {
         {/* Content */}
         {/* <CardContent cheese={cheese}/> */}
         {/* 라우터를 이용한 페이지 스왑? */}
-        <Routes>
-            <Route path='/' element={<CardContent cheese={cheese} setCheese={setCheese}/>}/>
-            <Route path='/detail/:id' element={<Detail cheese={cheese}/>}/>
-            <Route path='/cart' element={<Cart/>}/>
-            <Route path='/about' element={<About/>}>
-                <Route path='emp' element={<div>너는 우리 직원이야</div>}/>
-                <Route path='location' element={<div>혜화역 4번 출구</div>}/>
-            </Route>
-            <Route path='/event' element={<Event/>}>
-                <Route path='one' element={<div>첫 주문은 1+1입니다.</div>}/>
-                <Route path='two' element={<div>포인트 1,0000점을 드립니다.</div>}/>
-            </Route>
-            {/* 에러페이지 만들기 */}
-            <Route path='*' element={<h1>없는 페이지 입니다.</h1>}/>
-        </Routes>
+        
+        <Suspense fallback={<div>로딩중입니다.</div>}>
+          <Routes>
+              <Route path='/' element={<CardContent cheese={cheese} setCheese={setCheese}/>}/>
+              <Route path='/detail/:id' element={
+                  <Detail cheese={cheese}/>
+              }/>
+              <Route path='/cart' element={<Cart/>}/>
+              <Route path='/about' element={<About/>}>
+                  <Route path='emp' element={<div>너는 우리 직원이야</div>}/>
+                  <Route path='location' element={<div>혜화역 4번 출구</div>}/>
+              </Route>
+              <Route path='/event' element={<Event/>}>
+                  <Route path='one' element={<div>첫 주문은 1+1입니다.</div>}/>
+                  <Route path='two' element={<div>포인트 1,0000점을 드립니다.</div>}/>
+              </Route>
+              {/* 에러페이지 만들기 */}
+              <Route path='*' element={<h1>없는 페이지 입니다.</h1>}/>
+          </Routes>
+        </Suspense>
     </div>
   );
 } //end App
@@ -84,7 +116,7 @@ function CardContent({cheese,setCheese}){
                     setCheese(newCheese);
                 })
                 .catch(()=>{console.log('data fail')})
-            }}>더보기</button>
+            }}>더보기</button> 
             {/* <button onClick={()=>{
                 axios.post('URL',{name:'yuna'})
                 .then()
@@ -124,10 +156,13 @@ function NavArea(){
         </NavDropdown>
       </Nav>
     </Navbar.Collapse>
+        <Nav className='ms-auto'>
+          
+          반갑습니다
+        </Nav>
   </Container>
 </Navbar>
 }// end NavArea
-
 function MainTitle(){
   return <div className="jumbotron">
                 <img src='https://han.gl/nrZOd' alt='Cheese' className='titleImage'/>
